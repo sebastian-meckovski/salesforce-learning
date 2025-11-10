@@ -27,13 +27,13 @@ jobs:
           echo "${{ secrets.SFDX_PRODUCTION_URL }}" > ./SFDX_PRODUCTION_URL.txt
 
       - name: Authenticate to Production Org
-        run: sf org login sfdx-url --sfdx-url-file ./SFDX_PRODUCTION_URL.txt --alias production --set-default
+        run: sf org login sfdx-url --sfdx-url-file ./SFDX_PRODUCTION_URL.txt --alias personal-dev --set-default
 
       - name: Run Apex Tests
-        run: sf apex run test --target-org production --wait 20 --result-format human --code-coverage
+        run: sf apex run test --target-org personal-dev --wait 20 --result-format human --code-coverage
 
       - name: Validate deployment (check-only)
-        run: sf project deploy validate --source-dir force-app --target-org production --wait 20
+        run: sf project deploy validate --source-dir force-app --target-org personal-dev --wait 20
 
   deploy-to-production:
     runs-on: ubuntu-latest
@@ -57,10 +57,10 @@ jobs:
           echo "${{ secrets.SFDX_PRODUCTION_URL }}" > ./SFDX_PRODUCTION_URL.txt
 
       - name: Authenticate to Production Org
-        run: sf org login sfdx-url --sfdx-url-file ./SFDX_PRODUCTION_URL.txt --alias production --set-default
+        run: sf org login sfdx-url --sfdx-url-file ./SFDX_PRODUCTION_URL.txt --alias personal-dev --set-default
 
       - name: Deploy to Production
-        run: sf project deploy start --target-org production --test-level RunLocalTests --wait 30
+        run: sf project deploy start --target-org personal-dev --test-level RunLocalTests --wait 30
 
       - name: Run Apex Tests in Production
-        run: sf apex run test --target-org production --wait 20 --result-format human --code-coverage
+        run: sf apex run test --target-org personal-dev --wait 20 --result-format human --code-coverage
