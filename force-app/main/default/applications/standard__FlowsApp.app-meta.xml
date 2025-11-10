@@ -13,6 +13,7 @@
     <tabs>standard-Monitor</tabs>
     <tabs>Expense__c</tabs>
     <tabs>Task__c</tabs>
+    <tabs>standard-ActionHub</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>FlowsApp_UtilityBar</utilityBar>
 </CustomApplication>
