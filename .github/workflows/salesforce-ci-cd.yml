@@ -24,7 +24,7 @@ jobs:
       - name: Populate auth file with SFDX_URL secret
         shell: bash
         run: |
-          echo ${{ secrets.SFDX_PRODUCTION_URL}} > ./SFDX_PRODUCTION_URL.txt
+          echo "${{ secrets.SFDX_PRODUCTION_URL }}" > ./SFDX_PRODUCTION_URL.txt
 
       - name: Authenticate to Production Org
         run: sf org login sfdx-url --sfdx-url-file ./SFDX_PRODUCTION_URL.txt --alias production --set-default
@@ -54,7 +54,7 @@ jobs:
       - name: Populate auth file with SFDX_URL secret
         shell: bash
         run: |
-          echo ${{ secrets.SFDX_PRODUCTION_URL}} > ./SFDX_PRODUCTION_URL.txt
+          echo "${{ secrets.SFDX_PRODUCTION_URL }}" > ./SFDX_PRODUCTION_URL.txt
 
       - name: Authenticate to Production Org
         run: sf org login sfdx-url --sfdx-url-file ./SFDX_PRODUCTION_URL.txt --alias production --set-default
