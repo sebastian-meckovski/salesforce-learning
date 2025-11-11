@@ -130,6 +130,7 @@ private class BookControllerTest {
             'Test Author',
             5,
             'This is a test review',
+            'New',
             '123 Test St',
             'Test City',
             'CA',
@@ -164,6 +165,7 @@ private class BookControllerTest {
             null,
             null,
             null,
+            null,
             null
         );
         Test.stopTest();
@@ -184,7 +186,8 @@ private class BookControllerTest {
         Book__c newBook = BookController.createBook(
             '',
             '',
-            1,  // Use 1 instead of 0 to satisfy validation rule
+             1,  // Use 1 instead of 0 to satisfy validation rule
+            '',
             '',
             '',
             '',
@@ -207,8 +210,8 @@ private class BookControllerTest {
     static void testCreateBook_MultipleBooks() {
         // Test creating multiple books in sequence
         Test.startTest();
-        Book__c book1 = BookController.createBook('Book One', 'Author One', 3, 'Review One', null, null, null, null, null);
-        Book__c book2 = BookController.createBook('Book Two', 'Author Two', 4, 'Review Two', null, null, null, null, null);
+        Book__c book1 = BookController.createBook('Book One', 'Author One', 3, 'Review One', null, null, null, null, null, null);
+        Book__c book2 = BookController.createBook('Book Two', 'Author Two', 4, 'Review Two', null, null, null, null, null, null);
         Test.stopTest();
         
         // Verify both books were created with unique IDs
@@ -230,7 +233,7 @@ private class BookControllerTest {
         // Test that invalid rating values are rejected by validation rules
         Test.startTest();
         try {
-            BookController.createBook('Test Book', 'Test Author', 0, 'Test Review', null, null, null, null, null);
+            BookController.createBook('Test Book', 'Test Author', 0, 'Test Review', null, null, null, null, null, null);
             System.assert(false, 'Should have thrown an exception for invalid rating');
         } catch (DmlException e) {
             // This is expected - validation rule should prevent rating of 0
@@ -239,7 +242,7 @@ private class BookControllerTest {
         }
 
         try {
-            BookController.createBook('Test Book', 'Test Author', 6, 'Test Review', null, null, null, null, null);
+            BookController.createBook('Test Book', 'Test Author', 6, 'Test Review', null, null, null, null, null, null);
             System.assert(false, 'Should have thrown an exception for invalid rating');
         } catch (DmlException e) {
             // This is expected - validation rule should prevent rating of 6
