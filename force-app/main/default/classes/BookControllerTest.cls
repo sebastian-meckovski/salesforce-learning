@@ -388,4 +388,65 @@ private class BookControllerTest {
         }
         Test.stopTest();
     }
+    
+    @isTest
+    static void testUpdateBookStatus_Success() {
+        // Test successful status update
+        Book__c testBook = [SELECT Id, Status__c FROM Book__c LIMIT 1];
+        
+        Test.startTest();
+        Book__c updatedBook = BookController.updateBookStatus(testBook.Id, 'VeryOld');
+        Test.stopTest();
+        
+        // Verify the status was updated
+        System.assertEquals('VeryOld', updatedBook.Status__c, 'Status should be updated to VeryOld');
+        
+        // Verify the update persisted in the database
+        Book__c dbBook = [SELECT Id, Status__c FROM Book__c WHERE Id = :testBook.Id];
+        System.assertEquals('VeryOld', dbBook.Status__c, 'Status should be VeryOld in database');
+    }
+    
+    @isTest
+    static void testUpdateBookStatus_DifferentStatuses() {
+        // Test updating to different status values
+        List<Book__c> testBooks = [SELECT Id, Status__c FROM Book__c LIMIT 3];
+        
+        Test.startTest();
+        BookController.updateBookStatus(testBooks[0].Id, 'New');
+        BookController.updateBookStatus(testBooks[1].Id, 'Old');
+        BookController.updateBookStatus(testBooks[2].Id, 'KindaNew');
+        Test.stopTest();
+        
+        // Verify all updates
+        Map<Id, Book__c> updatedBooks = new Map<Id, Book__c>([SELECT Id, Status__c FROM Book__c WHERE Id IN :testBooks]);
+        System.assertEquals('New', updatedBooks.get(testBooks[0].Id).Status__c, 'First book should be New');
+        System.assertEquals('Old', updatedBooks.get(testBooks[1].Id).Status__c, 'Second book should be Old');
+        System.assertEquals('KindaNew', updatedBooks.get(testBooks[2].Id).Status__c, 'Third book should be KindaNew');
+    }
+    
+    @isTest
+    static void testGetStatusPicklistValues() {
+        // Test retrieving status picklist values
+        Test.startTest();
+        List<BookController.PicklistOption> statuses = BookController.getStatusPicklistValues();
+        Test.stopTest();
+        
+        // Verify we get status values
+        System.assertNotEquals(null, statuses, 'Status list should not be null');
+        System.assert(statuses.size() > 0, 'Should have at least one status value');
+        
+        // Verify the structure of PicklistOption
+        for (BookController.PicklistOption status : statuses) {
+            System.assertNotEquals(null, status.label, 'Status label should not be null');
+            System.assertNotEquals(null, status.value, 'Status value should not be null');
+        }
+        
+        // Verify expected status values are present
+        Set<String> statusValues = new Set<String>();
+        for (BookController.PicklistOption status : statuses) {
+            statusValues.add(status.value);
+        }
+        System.assert(statusValues.contains('New') || statusValues.contains('Old') || statusValues.contains('KindaNew'), 
+                     'Should contain at least one expected status value');
+    }
 }
