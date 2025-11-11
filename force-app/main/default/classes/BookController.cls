@@ -2,7 +2,7 @@ public with sharing class BookController {
     @AuraEnabled(cacheable=true)
     public static List<Book__c> getBooks() {
         return [
-            SELECT Id, Name, Title__c, Author__c, Rating__c, Review__c,
+            SELECT Id, Name, Title__c, Author__c, Rating__c, Review__c, Status__c,
                    Book_address__Street__s, Book_address__City__s,
                    Book_address__StateCode__s, Book_address__CountryCode__s,
                    Book_address__PostalCode__s
@@ -16,6 +16,7 @@ public with sharing class BookController {
         String author,
         Integer rating,
         String review,
+        String status,
         String addressStreet,
         String addressCity,
         String addressProvince,
@@ -28,12 +29,14 @@ public with sharing class BookController {
         System.debug('addressProvince: ' + addressProvince);
         System.debug('addressCountry: ' + addressCountry);
         System.debug('addressPostalCode: ' + addressPostalCode);
+        System.debug('status: ' + status);
 
         Book__c newBook = new Book__c(
             Title__c = title,
             Author__c = author,
             Rating__c = rating,
             Review__c = review,
+            Status__c = status,
             Book_address__Street__s = addressStreet,
             Book_address__City__s = addressCity,
             Book_address__StateCode__s = addressProvince,
@@ -51,6 +54,14 @@ public with sharing class BookController {
     public static Book__c updateBookRating(Id bookId, Decimal newRating) {
         Book__c book = [SELECT Id, Rating__c FROM Book__c WHERE Id = :bookId LIMIT 1];
         book.Rating__c = newRating;
+        update book;
+        return book;
+    }
+
+    @AuraEnabled
+    public static Book__c updateBookStatus(Id bookId, String newStatus) {
+        Book__c book = [SELECT Id, Status__c FROM Book__c WHERE Id = :bookId LIMIT 1];
+        book.Status__c = newStatus;
         update book;
         return book;
     }
@@ -78,6 +89,24 @@ public with sharing class BookController {
 
         System.debug('Loaded ' + countries.size() + ' countries from State and Country Picklists');
         return countries;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<PicklistOption> getStatusPicklistValues() {
+        List<PicklistOption> statuses = new List<PicklistOption>();
+
+        // Access the Status__c picklist values
+        Schema.DescribeFieldResult statusField = Book__c.Status__c.getDescribe();
+        List<Schema.PicklistEntry> picklistValues = statusField.getPicklistValues();
+
+        for (Schema.PicklistEntry entry : picklistValues) {
+            if (entry.isActive()) {
+                statuses.add(new PicklistOption(entry.getLabel(), entry.getValue()));
+            }
+        }
+
+        System.debug('Loaded ' + statuses.size() + ' status values');
+        return statuses;
     }
 
     public class PicklistOption {

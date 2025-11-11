@@ -1,12 +1,15 @@
 import { LightningElement, wire } from "lwc";
 import createBook from "@salesforce/apex/BookController.createBook";
 import getCountryPicklistValues from "@salesforce/apex/BookController.getCountryPicklistValues";
+import getStatusPicklistValues from "@salesforce/apex/BookController.getStatusPicklistValues";
 import { publish, MessageContext } from "lightning/messageService";
 import BOOK_ADDED_CHANNEL from "@salesforce/messageChannel/BookAdded__c";
 
 export default class AddBook extends LightningElement {
   // Country options from Salesforce State and Country Picklists
   countryOptions = [];
+  // Status options from Status__c picklist
+  statusOptions = [];
 
   // Initialize form fields using constructor
   constructor() {
@@ -34,6 +37,23 @@ export default class AddBook extends LightningElement {
     }
   }
 
+  // Wire the status picklist values
+  @wire(getStatusPicklistValues)
+  wiredStatuses({ error, data }) {
+    if (data) {
+      console.log('Status options loaded:', data);
+      // Transform the data from Apex to the format expected by lightning-combobox
+      this.statusOptions = data.map(status => ({
+        label: status.label,
+        value: status.value
+      }));
+      console.log('Status options loaded:', this.statusOptions);
+    } else if (error) {
+      console.error('Error loading statuses:', error);
+      this.error = 'Failed to load status list';
+    }
+  }
+
   // Handle input changes
   handleTitleChange(event) {
     this.title = event.target.value;
@@ -49,6 +69,10 @@ export default class AddBook extends LightningElement {
 
   handleReviewChange(event) {
     this.review = event.target.value;
+  }
+
+  handleStatusChange(event) {
+    this.status = event.target.value;
   }
 
   // Handle address change from lightning-input-address
@@ -92,6 +116,7 @@ export default class AddBook extends LightningElement {
       author: this.author,
       rating: this.rating,
       review: this.review,
+      status: this.status,
       addressStreet: this.addressStreet,
       addressCity: this.addressCity,
       addressProvince: '', // Not using provinces as requested
@@ -122,6 +147,7 @@ export default class AddBook extends LightningElement {
     this.author = "";
     this.rating = 1;
     this.review = "";
+    this.status = "";
     this.message = "";
     this.error = "";
 

@@ -5,6 +5,13 @@
             <lightning-input label="Author" value={author} onchange={handleAuthorChange} required></lightning-input>
             <lightning-input type="number" label="Rating (1-5)" value={rating} min="1" max="5" onchange={handleRatingChange} required></lightning-input>
             <lightning-textarea label="Review" value={review} onchange={handleReviewChange}></lightning-textarea>
+            <lightning-combobox
+                label="Status"
+                value={status}
+                placeholder="Select Status"
+                options={statusOptions}
+                onchange={handleStatusChange}
+            ></lightning-combobox>
 
             <!-- Address with Google Places autocomplete -->
             <div class="slds-m-top_medium">

@@ -1,7 +1,9 @@
 import { LightningElement, track, wire } from 'lwc';
 import getBooks from '@salesforce/apex/BookController.getBooks';
 import updateBookRating from '@salesforce/apex/BookController.updateBookRating';
+import updateBookStatus from '@salesforce/apex/BookController.updateBookStatus';
 import deleteBook from '@salesforce/apex/BookController.deleteBook';
+import getStatusPicklistValues from '@salesforce/apex/BookController.getStatusPicklistValues';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { refreshApex } from '@salesforce/apex';
 import { subscribe, MessageContext, unsubscribe } from 'lightning/messageService';
@@ -9,9 +11,25 @@ import BOOK_ADDED_CHANNEL from '@salesforce/messageChannel/BookAdded__c';
 
 export default class BookList extends LightningElement {
     @track ratingEdits = {};
+    @track statusEdits = {};
+    statusOptions = [];
     @wire(getBooks) books;
     @wire(MessageContext) messageContext;
     subscription = null;
+
+    // Wire the status picklist values
+    @wire(getStatusPicklistValues)
+    wiredStatuses({ error, data }) {
+        if (data) {
+            console.log('Status options loaded:', data);
+            this.statusOptions = data.map(status => ({
+                label: status.label,
+                value: status.value
+            }));
+        } else if (error) {
+            console.error('Error loading statuses:', error);
+        }
+    }
 
     connectedCallback() {
         this.subscribeToMessageChannel();
@@ -48,6 +66,11 @@ export default class BookList extends LightningElement {
         this.ratingEdits = { ...this.ratingEdits, [bookId]: event.target.value };
     }
 
+    handleStatusInput(event) {
+        const bookId = event.target.dataset.id;
+        this.statusEdits = { ...this.statusEdits, [bookId]: event.target.value };
+    }
+
     async handleSaveRating(event) {
         const bookId = event.target.dataset.id;
         const newRating = parseFloat(this.ratingEdits[bookId]);
@@ -62,6 +85,22 @@ export default class BookList extends LightningElement {
             // eslint-disable-next-line no-console
             console.error('Error updating rating', err);
             this.dispatchEvent(new ShowToastEvent({ title: 'Error updating rating', message: err.body ? err.body.message : err.message, variant: 'error' }));
+        }
+    }
+
+    async handleSaveStatus(event) {
+        const bookId = event.target.dataset.id;
+        const newStatus = this.statusEdits[bookId];
+        try {
+            await updateBookStatus({ bookId, newStatus });
+            this.statusEdits = { ...this.statusEdits, [bookId]: '' };
+            // Refresh the wire adapter
+            await refreshApex(this.books);
+            this.dispatchEvent(new ShowToastEvent({ title: 'Success', message: 'Status updated', variant: 'success' }));
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Error updating status', err);
+            this.dispatchEvent(new ShowToastEvent({ title: 'Error updating status', message: err.body ? err.body.message : err.message, variant: 'error' }));
         }
     }
 
