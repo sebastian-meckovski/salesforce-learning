@@ -2,7 +2,7 @@ public with sharing class BookController {
     @AuraEnabled(cacheable=true)
     public static List<Book__c> getBooks() {
         return [
-w            SELECT Id, Name, Title__c, Author__c, Rating__c, Review__c, Status__c,
+            SELECT Id, Name, Title__c, Author__c, Rating__c, Review__c, Status__c,
                    Book_address__Street__s, Book_address__City__s,
                    Book_address__StateCode__s, Book_address__CountryCode__s,
                    Book_address__PostalCode__s
